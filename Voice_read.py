@@ -1,5 +1,11 @@
-import pandas as pd
+from transformers import pipeline
 
-a = 1
-b = a
-c = 9
+pipe = pipeline("automatic-speech-recognition", model="openai/whisper-small")
+
+audio_exemp = '/Users/khatabaev/Desktop/First try.m4a'
+
+
+result = pipe(audio_exemp)
+
+
+print(result)
