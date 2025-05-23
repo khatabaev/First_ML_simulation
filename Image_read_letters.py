@@ -21,12 +21,13 @@ for img_path in images:
     # Распознаем текст с предобработанным изображением
     result = reader.readtext(binary_image)
     
-    # Выводим результаты
-    print(f"Results for {img_path}:")
-    
+    # Проверяем, есть ли результаты
     if result:
-        for detection in result:
-            # detection[1] — это текст, распознанный с картинки
-            print(f"Detected text: {detection[1]} (confidence: {detection[2]:.2f})")
+        # Ищем результат с наибольшей уверенностью
+        max_confidence_result = max(result, key=lambda x: x[2])
+        
+        # Выводим результат с наибольшей уверенностью
+        print(f"Highest confidence result for {img_path}:")
+        print(f"Detected text: {max_confidence_result[1]} (confidence: {max_confidence_result[2]:.2f})")
     else:
-        print("No text detected.")
+        print(f"No text detected in {img_path}.")
