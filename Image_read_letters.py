@@ -23,11 +23,11 @@ for img_path in images:
     
     # Проверяем, есть ли результаты
     if result:
-        # Ищем результат с наибольшей уверенностью
-        max_confidence_result = max(result, key=lambda x: x[2])
+        # Объединяем все слова в одну строку
+        full_text = " ".join([detection[1] for detection in result])
         
-        # Выводим результат с наибольшей уверенностью
-        print(f"Highest confidence result for {img_path}:")
-        print(f"Detected text: {max_confidence_result[1]} (confidence: {max_confidence_result[2]:.2f})")
+        # Выводим результат
+        print(f"Detected text for {img_path}:")
+        print(full_text)
     else:
         print(f"No text detected in {img_path}.")
