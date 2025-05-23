@@ -9,4 +9,4 @@ for img_path in images:
     result = reader.readtext(img_path)
     print(f"Results for {img_path}:")
     for detection in result:
-        print(detection[1])  # распознанный текст
+        print(detection[1]) 
