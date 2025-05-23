@@ -1,7 +1,7 @@
 import easyocr
 
 # Инициализация с нужными языками
-reader = easyocr.Reader(['en', 'ru', 'uz_latn'])
+reader = easyocr.Reader(['en', 'ru'])
 
 images = ['/Users/khatabaev/Desktop/First image.jpg']
 
