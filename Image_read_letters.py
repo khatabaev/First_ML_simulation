@@ -14,25 +14,43 @@ image_paths = [
 # Минимальный порог уверенности, чтоб фиговые результаты модель не показывала
 MIN_CONFIDENCE = 0.49
 
-def preprocess_image(image):
-    # Преобразование в оттенки серого (ускорение обработки, модель не пытается сосредатачивается на фоне картинки, адаптивный порог передает привет)
+def save_processed_images(original, gray, thresh, denoised, base_filename):
+    # Создаем папку processed_images на рабочем столе, если её нет
+    output_dir = '/Users/khatabaev/Desktop/processed_images'
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+    
+    # Получаем имя файла без расширения
+    filename = os.path.splitext(os.path.basename(base_filename))[0]
+    
+    # Сохраняем каждый этап обработки
+    cv2.imwrite(os.path.join(output_dir, f"{filename}_original.jpg"), original)
+    cv2.imwrite(os.path.join(output_dir, f"{filename}_gray.jpg"), gray)
+    cv2.imwrite(os.path.join(output_dir, f"{filename}_threshold.jpg"), thresh)
+    cv2.imwrite(os.path.join(output_dir, f"{filename}_denoised.jpg"), denoised)
+
+def preprocess_image(image, save_path=None):
+    # Преобразование в оттенки серого
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     
-    # Применение адаптивного порога для улучшения контраста (математическое улучшение модели)
+    # Применение адаптивного порога для улучшения контраста
     thresh = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
     
-    # Удаление шума (удаление лишнего мусора, маленький деталей, неровностей и тп, ищет среднее в удаляемом)
+    # Удаление шума
     denoised = cv2.fastNlMeansDenoising(thresh)
+    
+    # Если указан путь для сохранения, сохраняем все этапы обработки
+    if save_path:
+        save_processed_images(image, gray, thresh, denoised, save_path)
     
     return denoised
 
-# Инициализируем OCR один раз для оптимизации (ускоряет обработку изображения для каждого нового изображения)
+# Инициализируем OCR один раз для оптимизации
 print("Инициализация OCR...")
 reader_ru = easyocr.Reader(['en', 'ru'])
 reader_uz = easyocr.Reader(['en', 'uz'])
 
-def determine_language(text): # для того, чтобы опередлить язык и ограничить количество распознаваний на схожие языки 
-    # (устраняет проблемы с тем, что узбекский текст пытается делать распознавание на всех схожиях языках)
+def determine_language(text): # для того, чтобы опередлить язык и ограничить количество распознаваний на схожие языки
     ru_chars = set('абвгдеёжзийклмнопрстуфхцчшщъыьэюя')
     uz_chars = set('ўқғҳ')
     en_chars = set('abcdefghijklmnopqrstuvwxyz')
@@ -62,8 +80,9 @@ for image_path in image_paths:
         print(f"Ошибка: Не удалось прочитать изображение по пути {image_path}")
         continue
 
-    # Предобработка изображения
-    processed_image = preprocess_image(image)
+    # Предобработка изображения с сохранением промежуточных результатов
+    processed_image = preprocess_image(image, save_path=image_path)
+    print(f"Промежуточные результаты обработки сохранены в папку processed_images на рабочем столе")
     
     # Пробуем оба варианта изображения - оригинал и обработанное
     all_results = []
